@@ -2,16 +2,22 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Polling App</title>
+    <title>K&V Trivia</title>
 </head>
+<h1>Kristen & Vinh Trivia</h1>
 <body>
-<h3>Polls</h3>
-<ul>
+
+<h3>Scan the code to join!</h3>
+
+<img src="{{url_for('static', filename='/qrcode.png')}}" alt="QR Code">
+
+<h3>Questions</h3>
+<ol>
 {% for key, value in polls.iterrows() %}
     <li><a href="{{ url_for('polls', id=key) }}">{{ value['poll'] }}</a></li>
 {% endfor %}
-</ul>
+</ol>
 
-<a href="{{ url_for('create_poll') }}">Create New Poll</a>
+<a href="{{ url_for('create_poll') }}">Create New Question</a>
 </body>
 </html>

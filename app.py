@@ -12,9 +12,11 @@ if not os.path.exists("polls.csv"):
         "option1": [],
         "option2": [],
         "option3": [],
+        "option4": [],
         "votes1": [],
         "votes2": [],
-        "votes3": []
+        "votes3": [],
+        "votes4": [],
     }
 
     pd.DataFrame(structure).set_index("id").to_csv("polls.csv")
@@ -55,7 +57,8 @@ def create_poll():
         option1 = request.form["option1"]
         option2 = request.form["option2"]
         option3 = request.form["option3"]
-        polls_df.loc[max(polls_df.index.values) + 1] = [poll, option1, option2, option3, 0, 0, 0]
+        option4 = request.form["option4"]
+        polls_df.loc[max(polls_df.index.values) + 1] = [poll, option1, option2, option3, option4, 0, 0, 0, 0]
         polls_df.to_csv("polls.csv")
         return redirect(url_for("index"))
 
