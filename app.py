@@ -1,4 +1,5 @@
 import os.path
+import threading
 
 import pandas as pd
 from flask import Flask, render_template, request, redirect, url_for, make_response
@@ -22,6 +23,7 @@ if not os.path.exists("polls.csv"):
     pd.DataFrame(structure).set_index("id").to_csv("polls.csv")
 
 polls_df = pd.read_csv("polls.csv").set_index("id")
+polls_lock = threading.Lock()
 
 
 @app.route("/")
@@ -31,7 +33,8 @@ def index() -> str:
 
 @app.route("/polls/<id>")
 def polls(id: str) -> str:
-    poll = polls_df.loc[int(id)]
+    with polls_lock:
+        poll = polls_df.loc[int(id)]
     print(poll)
     return render_template("show_poll.html", poll=poll)
 
@@ -41,7 +44,8 @@ def vote(id: str, option: str) -> str:
     cookieKey = f"vote_{id}_cookie"
     cookie = request.cookies.get(cookieKey)
     if cookie is None:
-        polls_df.at[int(id), "votes"+option] += 1
+        with polls_lock:
+            polls_df.at[int(id), "votes"+option] += 1
         polls_df.to_csv("polls.csv")
         response = make_response(redirect(url_for("polls", id=id)))
         response.set_cookie(cookieKey, option)
@@ -60,7 +64,8 @@ def create_poll() -> str:
         option2 = request.form["option2"]
         option3 = request.form["option3"]
         option4 = request.form["option4"]
-        polls_df.loc[max(polls_df.index.values) + 1] = [poll, option1, option2, option3, option4, 0, 0, 0, 0]
+        with polls_lock:
+            polls_df.loc[max(polls_df.index.values) + 1] = [poll, option1, option2, option3, option4, 0, 0, 0, 0]
         polls_df.to_csv("polls.csv")
         return redirect(url_for("index"))
     else:
